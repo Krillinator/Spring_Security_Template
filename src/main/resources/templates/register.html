@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+    <style>
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <!-- TODO Register Page
+            Form
+            Inputs
+                + Username
+                + Password
+            Button Submit
+
+            th:object           Reference Variable
+            th:action           Endpoint Actions
+            th:each             For Each loop
+            th:if               If(true)
+            th:errorclass       Apply class IF true
+            th:errors           Field reference for Error
+    -->
+
+    <div>
+
+        <form th:action="@{/register}" th:object="${userModel}" method="post">
+
+            <!-- Username Input -->
+            <div>
+                <p>Username:</p>
+                <input th:field="*{username}" type="text" placeholder="write your username here...">
+
+                <!-- Display SINGULAR error -->
+                <p th:if="${ #fields.hasErrors('username') }"
+                   th:errors="*{username}"
+                   th:errorclass="error"
+                ></p>
+            </div>
+
+
+            <!-- Password Input -->
+            <div>
+                <p>Password:</p>
+                <input th:field="*{password}" type="password" placeholder="write your password here...">
+
+                <ul>
+                    <li th:each="error : ${#fields.errors('password')}"
+                        th:text="${error}"
+                        class="error">
+                    </li>
+                </ul>
+
+            </div>
+
+            <input type="submit" value="Register">
+
+        </form>
+
+
+    </div>
+
+</body>
+</html>

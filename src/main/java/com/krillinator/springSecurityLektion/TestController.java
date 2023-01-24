@@ -1,59 +1,60 @@
 package com.krillinator.springSecurityLektion;
 
 import com.krillinator.springSecurityLektion.configurations.AppPasswordConfig;
+import com.krillinator.springSecurityLektion.user.UserModel;
+import com.krillinator.springSecurityLektion.user.UserModelRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PostMapping;
 
-/** REMINDER:
- *  Delete this later
- * */
+/** For debugging ONLY */
 
-@RestController
-@RequestMapping("/rest")
+@Controller
 public class TestController {
 
-    private final AppPasswordConfig bcrypt;
+    private final UserModelRepository userModelRepository;
+    private final AppPasswordConfig appPasswordConfig;
 
     @Autowired
-    public TestController(AppPasswordConfig bcrypt) {
-        this.bcrypt = bcrypt;
-    }
-
-    @GetMapping("/encode")
-    public String testEncoding() {
-
-        bcrypt.bCryptPasswordEncoder().matches("", "");
-
-        return bcrypt.bCryptPasswordEncoder().encode("password");
+    public TestController(UserModelRepository userModelRepository, AppPasswordConfig appPasswordConfig) {
+        this.userModelRepository = userModelRepository;
+        this.appPasswordConfig = appPasswordConfig;
     }
 
 
 
+    @GetMapping("/register")
+    public String displayRegisterUser(UserModel userModel) {    // THIS ARGUMENT MUST EXIST
 
-    @GetMapping("/admin")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public String testAdminPermission() {
-
-        return "Only admins can enter";
+        return "register";
     }
 
-    @GetMapping("/user")
-    @PreAuthorize("hasRole('ROLE_USER')")
-    public String testUserPermission() {
+    @PostMapping("/register")
+    public String registerUser(@Valid UserModel userModel, BindingResult result, Model model) {
 
-        return "Only user can enter";
+        if (result.hasErrors()) {
+
+            return "register";
+        }
+
+        // Prepare Model for persistence
+        userModel.setPassword(appPasswordConfig.bCryptPasswordEncoder().encode(userModel.getPassword()));
+        userModel.setAccountNonExpired(true);
+        userModel.setAccountNonLocked(true);
+        userModel.setCredentialsNonExpired(true);
+        userModel.setEnabled(true);
+
+        // IF no errors
+        System.out.println(userModel);
+        userModelRepository.save(userModel);
+        // model.addAttribute("user", userModel);
+
+        return "home";
     }
 
-    // Logical
-    @GetMapping("/unknown")
-    @PreAuthorize("hasRole('ROLE_ADMIN') " + " && " +
-            "hasAuthority('user:read') ")
-    public String testUnknownPermission() {
-
-        return "This should NEVER work";
-    }
 
 }

@@ -1,15 +1,13 @@
 package com.krillinator.springSecurityLektion.configurations;
 
-import com.krillinator.springSecurityLektion.user.authorities.UserRoles;
+import com.krillinator.springSecurityLektion.user.UserModelService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -17,41 +15,39 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity                   // Enables @PreAuthorize
 public class AppSecurityConfig {
 
+    private final AppPasswordConfig bcrypt;
+    private final UserModelService userModelService;
+
+    @Autowired
+    public AppSecurityConfig(AppPasswordConfig bcrypt, UserModelService userModelService) {
+        this.bcrypt = bcrypt;
+        this.userModelService = userModelService;
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests()
-                .requestMatchers("/", "/login", "/error", "/rest/encode").permitAll()
+                .requestMatchers("/", "/login", "/error", "/rest/**", "/register").permitAll()
                 .requestMatchers("/admin").hasRole("ADMIN")
                 .anyRequest()
                 .authenticated()
                 .and()
-                .formLogin();
-
-                // TODO - Tell Spring Security, which implementation, for password: to use
-
+                .formLogin()
+                .and()
+                .authenticationProvider(authenticationOverride());
 
         return http.build();
-
     }
 
-    @Bean
-    public UserDetailsService createUsersInMemory() {
+    // Tell Spring Security to use OUR implementation
+    public DaoAuthenticationProvider authenticationOverride() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
 
-        UserDetails benny = User.withDefaultPasswordEncoder()
-                .username("benny")
-                .password("123")
-                // .roles("ADMIN")                                      // <-- old way (only role)
-                .authorities(UserRoles.ADMIN.getGrantedAuthorities())   // <-- new way (both permissions and role)
-                .build();
+        provider.setUserDetailsService(userModelService);            // Query
+        provider.setPasswordEncoder(bcrypt.bCryptPasswordEncoder()); // Encoder BCRYPT
 
-        UserDetails anton = User.withDefaultPasswordEncoder()
-                .username("anton")
-                .password("123")
-                .authorities(UserRoles.USER.getGrantedAuthorities())
-                .build();
-
-        return new InMemoryUserDetailsManager(benny, anton);
+        return provider;
     }
 
 }
