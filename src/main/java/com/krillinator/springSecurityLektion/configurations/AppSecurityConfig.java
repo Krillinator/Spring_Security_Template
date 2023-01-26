@@ -10,6 +10,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
+import java.util.concurrent.TimeUnit;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity                   // Enables @PreAuthorize
@@ -27,14 +29,41 @@ public class AppSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests()
-                .requestMatchers("/", "/login", "/error", "/rest/**", "/register").permitAll()
-                .requestMatchers("/admin").hasRole("ADMIN")
-                .anyRequest()
-                .authenticated()
-                .and()
-                .formLogin()
-                .and()
+                // .csrf().disable()
+                .authorizeHttpRequests( requests -> {
+                        requests
+                            .requestMatchers("/", "/login", "/logout" , "/error", "/rest/**", "/register", "/static/**", "/helloWorld").permitAll()
+                            .requestMatchers("/admin").hasRole("ADMIN")
+                            .anyRequest()
+                            .authenticated();
+                        }
+                )
+
+                .formLogin( formlogin -> {
+                            formlogin.loginPage("/login");
+                        }
+                )
+                //.usernameParameter("email")
+                // TODO - ERROR : UserDetailsService returned null, which is an interface contract violation
+
+                .rememberMe(rememberMe -> {
+                            rememberMe
+                                    .rememberMeParameter("remember-me")
+                                    .tokenValiditySeconds((int) TimeUnit.DAYS.toSeconds(21))   // 3 Weeks
+                                    .key("someSecureKey")
+                                    .userDetailsService(userModelService);
+                                    }
+                )
+
+                .logout( logout -> {
+                    logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login")
+                        .clearAuthentication(true)
+                        .invalidateHttpSession(true)
+                        .deleteCookies("remember-me", "JSESSIONID");
+                        }
+                )
                 .authenticationProvider(authenticationOverride());
 
         return http.build();

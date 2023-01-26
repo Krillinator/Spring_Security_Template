@@ -19,7 +19,8 @@ public class UserModelService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        // TODO - Exception Handling
+        // TODO - USER EXISTS?                                                              // USER DOES NOT EXIST
+        // TODO - REFRESH ERROR PAGE = Property or field 'message' cannot be found on null // WRONG PASSWORD
 
         return userModelRepository.findByUsername(username);    // Query
     }
