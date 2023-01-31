@@ -25,6 +25,12 @@ public class TestController {
         this.appPasswordConfig = appPasswordConfig;
     }
 
+    @GetMapping("/helloWorld")
+    public String sayHello() {
+
+        return "home";
+    }
+
     @GetMapping("/register")
     public String displayRegisterUser(UserModel userModel) {    // THIS ARGUMENT MUST EXIST
 

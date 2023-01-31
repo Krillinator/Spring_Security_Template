@@ -5,6 +5,7 @@ import com.krillinator.springSecurityLektion.user.UserModel;
 import com.krillinator.springSecurityLektion.user.UserModelRepository;
 import com.krillinator.springSecurityLektion.user.UserModelService;
 import com.krillinator.springSecurityLektion.user.authorities.UserRoles;
+import com.krillinator.springSecurityLektion.user.dataObjects.UserModelDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestRestController {
 
     private final AppPasswordConfig bcrypt;
-    private final UserModelRepository userModelRepository;
+    private final UserModelRepository userModelRepository;      // TODO - DAO IMPLEMENTATION HERE
     private final UserModelService userModelService;
 
     @Autowired
@@ -49,9 +50,9 @@ public class TestRestController {
     }
 
     @GetMapping("/find/{username}")
-    public UserDetails findByUsername(@PathVariable String username) {
+    public UserModelDTO findByUsername(@PathVariable String username) {
 
-        return userModelService.loadUserByUsername(username);
+        return new UserModelDTO(userModelService.loadUserByUsername(username));
     }
 
 
