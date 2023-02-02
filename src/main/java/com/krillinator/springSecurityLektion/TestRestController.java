@@ -39,20 +39,24 @@ public class TestRestController {
         UserModel benny = new UserModel(
                 "Benny",
                 bcrypt.bCryptPasswordEncoder().encode("123"),
-                UserRoles.ADMIN.getGrantedAuthorities(),
+                UserRoles.USER.getGrantedAuthorities(),
                 true,
                 true,
                 true,
                 true
         );
 
+        System.out.println(benny);
+
         return userModelRepository.save(benny);
     }
 
     @GetMapping("/find/{username}")
-    public UserModelDTO findByUsername(@PathVariable String username) {
+    public UserModel findByUsername(@PathVariable String username) {
 
-        return new UserModelDTO(userModelService.loadUserByUsername(username));
+        System.out.println(userModelService.loadUserByUsername(username));
+
+        return userModelService.loadUserByUsername(username);
     }
 
 

@@ -1,42 +1,45 @@
 package com.krillinator.springSecurityLektion.user.authorities;
 
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.krillinator.springSecurityLektion.user.authorities.UserPermissions.*;
 
 public enum UserRoles {
 
-    USER(List.of(USER_READ)),
-    ADMIN(List.of(ADMIN_READ, ADMIN_WRITE));
+    USER(Set.of(USER_READ)),
+    ADMIN(Set.of(ADMIN_READ, ADMIN_WRITE));
 
     // Variable
-    private final List<UserPermissions> permissionsList;
+    private final Set<UserPermissions> permissionsList;
 
     // Constructor
-    UserRoles(List<UserPermissions> permissions) {
+    UserRoles(Set<UserPermissions> permissions) {
         this.permissionsList = permissions;
     }
 
     // Getter
-    public List<UserPermissions> getPermissions() {
+    public Set<UserPermissions> getPermissions() {
         return permissionsList;
     }
 
     // Create list: [ROLE & PERMISSIONS]
-    public List<String> getGrantedAuthorities() {
+    public Set<SimpleGrantedAuthority> getGrantedAuthorities() {
 
         // Loop
-        List<String> permissionsList = new ArrayList<>(getPermissions().stream().map(
-                UserPermissions::getUserPermission
-        ).toList());
+        Set<SimpleGrantedAuthority> permissionsSet = getPermissions().stream().map(
+                index -> new SimpleGrantedAuthority(index.getUserPermission())).collect(Collectors.toSet());
 
         // Add Role      (example ROLE_ADMIN)
-        permissionsList.add(("ROLE_" + this.name()));
+        permissionsSet.add(new SimpleGrantedAuthority("ROLE_" + this.name()));
 
-        return permissionsList;
+        return permissionsSet;
     }
 }
 

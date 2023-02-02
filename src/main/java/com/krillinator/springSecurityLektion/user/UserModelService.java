@@ -21,7 +21,7 @@ public class UserModelService implements UserDetailsService {
     @Override
     public UserModel loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        // TODO - USER EXISTS?                                                              // USER DOES NOT EXIST
+        // TODO - USER EXISTS?
         // TODO - REFRESH ERROR PAGE = Property or field 'message' cannot be found on null // WRONG PASSWORD
 
         return userModelDAO.findUser(username);

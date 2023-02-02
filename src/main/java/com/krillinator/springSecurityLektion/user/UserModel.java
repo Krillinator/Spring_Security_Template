@@ -6,10 +6,13 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -23,13 +26,14 @@ public class UserModel implements UserDetails {
     // @Email
     @NotEmpty
     @Size(min = 2, max = 50)
-    @Email                              // TODO - Accepts for example: benny@banan <-- This is acceptable, should it be?
+    //Email                              // TODO - Accepts for example: benny@banan <-- This is acceptable, should it be?
     private String username;
 
     @NotEmpty
     @Size(min = 6, max = 200)
     private String password;
-    private List<String> authorities;   // TODO - Check for alternatives, Convert to SET<>?, Basic attribute type should not be a container
+    @ElementCollection
+    private Set<SimpleGrantedAuthority> authorities;   // TODO - Check for alternatives, Convert to SET<>?, Basic attribute type should not be a container
 
     // @AssertTrue
     private boolean isAccountNonExpired;
@@ -37,7 +41,7 @@ public class UserModel implements UserDetails {
     private boolean isCredentialsNonExpired;
     private boolean isEnabled;
 
-    // TODO - DEMONSTRATE PROBLEM WITH USER VALIDATION
+
 
 
 
@@ -47,7 +51,7 @@ public class UserModel implements UserDetails {
 
 
     public UserModel() {}
-    public UserModel(String username, String password, List<String> authorities , boolean isAccountNonExpired, boolean isAccountNonLocked, boolean isCredentialsNonExpired, boolean isEnabled) {
+    public UserModel(String username, String password, Set<SimpleGrantedAuthority> authorities , boolean isAccountNonExpired, boolean isAccountNonLocked, boolean isCredentialsNonExpired, boolean isEnabled) {
         this.username = username;
         this.password = password;
         this.authorities = authorities;
@@ -65,7 +69,7 @@ public class UserModel implements UserDetails {
         this.password = password;
     }
 
-    public void setAuthorities(List<String> authorities) {
+    public void setAuthorities(Set<SimpleGrantedAuthority> authorities) {
         this.authorities = authorities;
     }
 
@@ -98,9 +102,7 @@ public class UserModel implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
-        // TODO - Convert STRING LIST to Authorities
-
-        return null;
+        return authorities;
     }
 
     @Override

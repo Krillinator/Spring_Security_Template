@@ -3,13 +3,18 @@ package com.krillinator.springSecurityLektion;
 import com.krillinator.springSecurityLektion.configurations.AppPasswordConfig;
 import com.krillinator.springSecurityLektion.user.UserModel;
 import com.krillinator.springSecurityLektion.user.UserModelRepository;
+import com.krillinator.springSecurityLektion.user.authorities.UserRoles;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+
+import java.util.List;
+import java.util.Set;
 
 /** For debugging ONLY */
 
@@ -46,6 +51,8 @@ public class TestController {
         }
 
         // Prepare Model for persistence
+        // userModel.setAuthorities(UserRoles.ADMIN.getGrantedAuthorities(userModel.getAuthorities())); // TODO - Check for auomatic way
+        // TODO - Fix permissions
         userModel.setPassword(appPasswordConfig.bCryptPasswordEncoder().encode(userModel.getPassword()));
         userModel.setAccountNonExpired(true);
         userModel.setAccountNonLocked(true);
