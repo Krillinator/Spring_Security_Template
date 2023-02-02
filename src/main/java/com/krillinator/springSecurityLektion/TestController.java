@@ -13,6 +13,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -50,9 +51,15 @@ public class TestController {
             return "register";
         }
 
-        // Prepare Model for persistence
+        String role = String.valueOf(userModel.getAuthorities().iterator().next());
+
+        switch (role) {
+            case "Admin" ->  userModel.setAuthorities(UserRoles.ADMIN.getGrantedAuthorities());
+            case "User" -> userModel.setAuthorities(UserRoles.USER.getGrantedAuthorities());
+        }
+
         // userModel.setAuthorities(UserRoles.ADMIN.getGrantedAuthorities(userModel.getAuthorities())); // TODO - Check for auomatic way
-        // TODO - Fix permissions
+
         userModel.setPassword(appPasswordConfig.bCryptPasswordEncoder().encode(userModel.getPassword()));
         userModel.setAccountNonExpired(true);
         userModel.setAccountNonLocked(true);

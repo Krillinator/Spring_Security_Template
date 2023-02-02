@@ -32,7 +32,7 @@ public class UserModel implements UserDetails {
     @NotEmpty
     @Size(min = 6, max = 200)
     private String password;
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private Set<SimpleGrantedAuthority> authorities;   // TODO - Check for alternatives, Convert to SET<>?, Basic attribute type should not be a container
 
     // @AssertTrue

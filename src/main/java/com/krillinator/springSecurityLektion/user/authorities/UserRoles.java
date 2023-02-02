@@ -34,7 +34,8 @@ public enum UserRoles {
 
         // Loop
         Set<SimpleGrantedAuthority> permissionsSet = getPermissions().stream().map(
-                index -> new SimpleGrantedAuthority(index.getUserPermission())).collect(Collectors.toSet());
+                index -> new SimpleGrantedAuthority(index.getUserPermission())
+        ).collect(Collectors.toSet());
 
         // Add Role      (example ROLE_ADMIN)
         permissionsSet.add(new SimpleGrantedAuthority("ROLE_" + this.name()));
